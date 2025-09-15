@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "Warranty Management API",
+    "description": "Complete backend API for warranty management system with user authentication and admin features",
+    "version": "1.0.0",
+    "baseUrl": "http://localhost:5000/api"
+  },
+  "auth": {
+    "type": "bearer",
+    "token": "{{jwt_token}}"
+  },
+  "endpoints": {
+    "authentication": {
+      "register": {
+        "method": "POST",
+        "url": "/auth/register",
+        "description": "Register a new user",
+        "body": {
+          "email": "user@example.com",
+          "password": "Password123",
+          "firstName": "John",
+          "lastName": "Doe"
+        },
+        "response": {
+          "success": true,
+          "message": "User registered successfully",
+          "data": {
+            "user": {
+              "id": "user_id",
+              "email": "user@example.com",
+              "firstName": "John",
+              "lastName": "Doe",
+              "role": "user"
+            },
+            "token": "jwt_token",
+            "refreshToken": "refresh_token"
+          }
+        }
+      },
+      "login": {
+        "method": "POST",
+        "url": "/auth/login",
+        "description": "Login user",
+        "body": {
+          "email": "user@example.com",
+          "password": "Password123"
+        },
+        "response": {
+          "success": true,
+          "message": "Login successful",
+          "data": {
+            "user": {
+              "id": "user_id",
+              "email": "user@example.com",
+              "firstName": "John",
+              "lastName": "Doe",
+              "role": "user"
+            },
+            "token": "jwt_token",
+            "refreshToken": "refresh_token"
+          }
+        }
+      },
+      "googleAuth": {
+        "method": "GET",
+        "url": "/auth/google",
+        "description": "Initiate Google OAuth flow"
+      },
+      "profile": {
+        "method": "GET",
+        "url": "/auth/profile",
+        "description": "Get current user profile",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        },
+        "response": {
+          "success": true,
+          "data": {
+            "user": {
+              "id": "user_id",
+              "email": "user@example.com",
+              "firstName": "John",
+              "lastName": "Doe",
+              "role": "user",
+              "avatar": "avatar_url",
+              "emailVerified": true,
+              "lastLogin": "2023-01-01T00:00:00.000Z",
+              "createdAt": "2023-01-01T00:00:00.000Z"
+            }
+          }
+        }
+      }
+    },
+    "warranties": {
+      "create": {
+        "method": "POST",
+        "url": "/warranties",
+        "description": "Create a new warranty",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        },
+        "body": {
+          "productName": "iPhone 14",
+          "productBrand": "Apple",
+          "productModel": "A2649",
+          "serialNumber": "ABC123456789",
+          "purchaseDate": "2023-01-15",
+          "purchasePrice": 999.99,
+          "retailer": "Apple Store",
+          "warrantyPeriod": 12,
+          "warrantyType": "manufacturer",
+          "issueDescription": "Screen not responding to touch",
+          "issueDate": "2023-06-15",
+          "category": "electronics",
+          "contactEmail": "user@example.com",
+          "contactPhone": "+1234567890",
+          "tags": ["urgent", "display"]
+        }
+      },
+      "getUserWarranties": {
+        "method": "GET",
+        "url": "/warranties",
+        "description": "Get user's warranties with pagination and filters",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        },
+        "queryParams": {
+          "page": "1",
+          "limit": "10",
+          "status": "pending",
+          "category": "electronics",
+          "search": "iPhone",
+          "sortBy": "submittedAt",
+          "sortOrder": "desc"
+        }
+      },
+      "getById": {
+        "method": "GET",
+        "url": "/warranties/:id",
+        "description": "Get warranty by ID",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        }
+      },
+      "update": {
+        "method": "PUT",
+        "url": "/warranties/:id",
+        "description": "Update warranty",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        },
+        "body": {
+          "issueDescription": "Updated description",
+          "contactPhone": "+0987654321"
+        }
+      },
+      "delete": {
+        "method": "DELETE",
+        "url": "/warranties/:id",
+        "description": "Delete warranty",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        }
+      },
+      "stats": {
+        "method": "GET",
+        "url": "/warranties/stats",
+        "description": "Get user warranty statistics",
+        "headers": {
+          "Authorization": "Bearer {{jwt_token}}"
+        }
+      }
+    },
+    "admin": {
+      "getAllWarranties": {
+        "method": "GET",
+        "url": "/admin/warranties",
+        "description": "Get all warranties with advanced filters (admin only)",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        },
+        "queryParams": {
+          "page": "1",
+          "limit": "20",
+          "status": "pending",
+          "priority": "high",
+          "category": "electronics",
+          "warrantyType": "manufacturer",
+          "assignedTo": "admin_id",
+          "unassigned": "true",
+          "startDate": "2023-01-01",
+          "endDate": "2023-12-31",
+          "search": "iPhone",
+          "sortBy": "submittedAt",
+          "sortOrder": "desc"
+        }
+      },
+      "updateWarranty": {
+        "method": "PUT",
+        "url": "/admin/warranties/:id",
+        "description": "Update warranty status and admin fields",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        },
+        "body": {
+          "status": "approved",
+          "priority": "high",
+          "adminNotes": "Approved for replacement",
+          "resolution": "Device will be replaced under warranty",
+          "assignedTo": "admin_user_id"
+        }
+      },
+      "assignWarranty": {
+        "method": "PUT",
+        "url": "/admin/warranties/:id/assign",
+        "description": "Assign warranty to admin",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        },
+        "body": {
+          "assignedTo": "admin_user_id"
+        }
+      },
+      "getAssignedWarranties": {
+        "method": "GET",
+        "url": "/admin/warranties/assigned",
+        "description": "Get warranties assigned to current admin",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        },
+        "queryParams": {
+          "page": "1",
+          "limit": "20",
+          "status": "in_review"
+        }
+      },
+      "bulkUpdate": {
+        "method": "PUT",
+        "url": "/admin/warranties/bulk-update",
+        "description": "Bulk update multiple warranties",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        },
+        "body": {
+          "warrantyIds": ["id1", "id2", "id3"],
+          "updateData": {
+            "status": "in_review",
+            "priority": "medium"
+          }
+        }
+      },
+      "getStats": {
+        "method": "GET",
+        "url": "/admin/stats",
+        "description": "Get comprehensive admin statistics",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        }
+      },
+      "getAdminUsers": {
+        "method": "GET",
+        "url": "/admin/users/admins",
+        "description": "Get all admin users",
+        "headers": {
+          "Authorization": "Bearer {{admin_jwt_token}}"
+        }
+      }
+    }
+  },
+  "statusCodes": {
+    "200": "Success",
+    "201": "Created",
+    "400": "Bad Request - Validation Error",
+    "401": "Unauthorized - Invalid or Missing Token",
+    "403": "Forbidden - Insufficient Permissions",
+    "404": "Not Found",
+    "409": "Conflict - Resource Already Exists",
+    "429": "Too Many Requests - Rate Limited",
+    "500": "Internal Server Error"
+  },
+  "errorFormat": {
+    "success": false,
+    "message": "Error description",
+    "errors": [
+      {
+        "field": "email",
+        "message": "Email is required"
+      }
+    ]
+  },
+  "dataTypes": {
+    "warrantyStatus": ["pending", "in_review", "approved", "rejected", "completed", "cancelled"],
+    "warrantyPriority": ["low", "medium", "high", "urgent"],
+    "warrantyType": ["manufacturer", "extended", "retailer"],
+    "category": ["electronics", "appliances", "automotive", "furniture", "clothing", "other"],
+    "userRole": ["user", "admin"]
+  }
+}
+
