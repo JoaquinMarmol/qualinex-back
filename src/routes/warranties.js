@@ -5,7 +5,8 @@ import {
   getWarrantyById,
   updateWarranty,
   deleteWarranty,
-  getUserWarrantyStats
+  getUserWarrantyStats,
+  getAllWarranties
 } from '../controllers/warrantyController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { validateWarrantyCreate, validateWarrantyUpdate } from '../utils/validators.js';
@@ -16,6 +17,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // User warranty routes
+router.get('/all', getAllWarranties);
 router.post('/', validateWarrantyCreate, createWarranty);
 router.get('/', getUserWarranties);
 router.get('/stats', getUserWarrantyStats);

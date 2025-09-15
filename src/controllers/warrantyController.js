@@ -150,6 +150,46 @@ export const updateWarranty = async (req, res) => {
   }
 };
 
+// controllers/warrantyController.js
+export const getAllWarranties = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    let filter = {};
+    if (req.query.status) filter.status = req.query.status;
+    if (req.query.search) {
+      const regex = new RegExp(req.query.search, 'i');
+      filter.$or = FRONT_FIELDS.map(field => ({ [field]: regex }));
+    }
+
+    const warranties = await Warranty.find(filter)
+      .populate('user', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Warranty.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: {
+        warranties,
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      }
+    });
+  } catch (error) {
+    console.error('Get all warranties error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
 // Eliminar garantía
 export const deleteWarranty = async (req, res) => {
   try {
