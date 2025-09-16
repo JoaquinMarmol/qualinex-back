@@ -377,15 +377,15 @@ export const googleLogin = async (req, res) => {
       const [firstName, ...rest] = payload.name.split(" ");
       const lastName = rest.join(" ");
 
-      user = new User({
-        email: payload.email,
-        firstName,
-        lastName,
-        googleId: payload.sub,
-        avatar: payload.picture,
-        emailVerified: payload.email_verified,
-        provider: "google", // 👈 Guardamos provider
-      });
+    user = new User({
+      email: payload.email,
+      fullName: payload.name || payload.email, // fallback si name no viene
+      googleId: payload.sub,
+      avatar: payload.picture,
+      emailVerified: payload.email_verified,
+      provider: "google",
+    });
+
 
       await user.save();
     }
