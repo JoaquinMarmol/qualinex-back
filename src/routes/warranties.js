@@ -14,17 +14,19 @@ import { validateWarrantyCreate, validateWarrantyUpdate } from '../utils/validat
 
 const router = express.Router();
 
-// All warranty routes require authentication
+// 🔓 Ruta pública (sin autenticación)
+router.get('/search', searchWarranties);
+
+// 🔒 Todas las rutas de abajo requieren autenticación
 router.use(authenticateToken);
 
-// User warranty routes
+// Rutas privadas
 router.get('/all', getAllWarranties);
 router.post('/', validateWarrantyCreate, createWarranty);
 router.get('/', getUserWarranties);
-router.get('/search', searchWarranties);
 router.get('/stats', getUserWarrantyStats);
 router.get('/:id', getWarrantyById);
 router.put('/:id', validateWarrantyUpdate, updateWarranty);
 router.delete('/:id', deleteWarranty);
 
-export default router;  
+export default router;

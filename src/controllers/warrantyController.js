@@ -253,13 +253,8 @@ export const getUserWarrantyStats = async (req, res) => {
   }
 };
 
-const buildUniversalFilter = (query, user) => {
+const buildUniversalFilter = (query) => {
   const filter = {};
-
-  // Control de permisos
-  if (user.role !== 'admin') {
-    filter.user = user._id; // usuarios normales solo ven sus garantías
-  }
 
   // Filtros básicos
   if (query.status) filter.status = query.status;
@@ -289,7 +284,7 @@ export const searchWarranties = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const filter = buildUniversalFilter(req.query, req.user);
+    const filter = buildUniversalFilter(req.query);
 
     // Ordenamiento
     const allowedSortFields = ['createdAt', 'applicationDate', 'status', 'priority'];
@@ -320,4 +315,5 @@ export const searchWarranties = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
 
