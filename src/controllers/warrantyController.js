@@ -252,3 +252,72 @@ export const getUserWarrantyStats = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+const buildUniversalFilter = (query, user) => {
+  const filter = {};
+
+  // Control de permisos
+  if (user.role !== 'admin') {
+    filter.user = user._id; // usuarios normales solo ven sus garantías
+  }
+
+  // Filtros básicos
+  if (query.status) filter.status = query.status;
+  if (query.priority) filter.priority = query.priority;
+  if (query.assignedTo) filter.assignedTo = query.assignedTo;
+  if (query.productSeries) filter.productSeries = query.productSeries;
+
+  // Fechas
+  if (query.startDate || query.endDate) {
+    filter.applicationDate = {};
+    if (query.startDate) filter.applicationDate.$gte = new Date(query.startDate);
+    if (query.endDate) filter.applicationDate.$lte = new Date(query.endDate);
+  }
+
+  // Búsqueda por texto
+  if (query.search) {
+    const regex = new RegExp(query.search, 'i');
+    filter.$or = FRONT_FIELDS.map(field => ({ [field]: regex }));
+  }
+
+  return filter;
+};
+
+export const searchWarranties = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const filter = buildUniversalFilter(req.query, req.user);
+
+    // Ordenamiento
+    const allowedSortFields = ['createdAt', 'applicationDate', 'status', 'priority'];
+    let sort = { createdAt: -1 };
+    if (req.query.sortBy && allowedSortFields.includes(req.query.sortBy)) {
+      const order = req.query.sortOrder === 'asc' ? 1 : -1;
+      sort = { [req.query.sortBy]: order };
+    }
+
+    const warranties = await Warranty.find(filter)
+      .populate('user', 'firstName lastName email')
+      .populate('assignedTo', 'firstName lastName email')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Warranty.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: {
+        warranties,
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      }
+    });
+  } catch (error) {
+    console.error('Search warranties error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
