@@ -316,4 +316,50 @@ export const searchWarranties = async (req, res) => {
   }
 };
 
+/* ===================================================
+   ADMIN: actualizar estado de una garantía
+   =================================================== */
+export const updateWarrantyStatus = async (req, res) => {
+  try {
+    // 🔐 Solo admin puede usar esta ruta
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Validation failed', errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid warranty ID' });
+    }
+
+    const warranty = await Warranty.findById(id).populate('user', 'fullName email');
+    if (!warranty) {
+      return res.status(404).json({ success: false, message: 'Warranty not found' });
+    }
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: 'Status is required' });
+    }
+
+    // 🧠 Actualizar estado y guardar
+    warranty.status = status;
+    await warranty.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Warranty status updated to ${status}`,
+      data: { warranty },
+    });
+  } catch (error) {
+    console.error('Admin update warranty status error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};

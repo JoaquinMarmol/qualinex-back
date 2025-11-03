@@ -136,12 +136,12 @@ export const validateAdminWarrantyUpdate = [
   body('status')
     .optional()
     .isIn(['pending', 'in_review', 'approved', 'rejected', 'completed', 'cancelled'])
-    .withMessage('Status must be one of: pending, in_review, approved, rejected, completed, cancelled'),
+    .withMessage('Invalid status value'),
 
   body('priority')
     .optional()
     .isIn(['low', 'medium', 'high', 'urgent'])
-    .withMessage('Priority must be one of: low, medium, high, urgent'),
+    .withMessage('Invalid priority value'),
 
   body('adminNotes')
     .optional()
@@ -153,6 +153,6 @@ export const validateAdminWarrantyUpdate = [
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage('Resolution must not exceed 1000 characters')
+    .withMessage('Resolution must not exceed 1000 characters'),
 ];
 
