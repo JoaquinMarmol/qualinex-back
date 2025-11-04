@@ -50,11 +50,14 @@ const corsOptions = {
     }
     
     // In production, check against allowed origins
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      'http://localhost:3000',
-      'http://localhost:3001'
-    ].filter(Boolean);
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://www.qualinex.com',
+  'https://qualinex.com',
+  'http://localhost:3000',
+  'http://localhost:3001'
+].filter(Boolean);
+
     
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
